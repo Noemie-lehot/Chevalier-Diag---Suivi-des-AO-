@@ -1,0 +1,2598 @@
+<!DOCTYPE html>
+<!-- saved from url=(0068)file:///C:/Users/n.lehot/Downloads/suivi_ao_chevalier_diag_v3_1.html -->
+<html lang="fr"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suivi AO — Chevalier Diag</title>
+<link href="./Suivi AO — Chevalier Diag v3_files/css2" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0d0f14;--surface:#151820;--surface2:#1c2030;--border:#252a3a;
+    --accent:#e8c547;--accent2:#4fc3a1;--danger:#e05c5c;
+    --text:#e8eaf0;--muted:#6b7280;
+    --won:#1a3a2a;--won-border:#2d6b4a;--won-text:#4fc3a1;
+    --lost:#3a1a1a;--lost-border:#6b2d2d;--lost-text:#e05c5c;
+    --pending:#1e2030;--pending-border:#3a4060;--pending-text:#7c9fd4;
+    --todo:#2a2a1a;--todo-border:#5a5a2d;--todo-text:#e8c547;
+    --nrep:#1a1a2a;--nrep-border:#333355;--nrep-text:#8888cc;
+    --annule:#1e1e1e;--annule-border:#444;--annule-text:#888;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;}
+  
+  /* BANDEAU SYNC */
+  #sync-bar{padding:8px 40px;font-size:11px;display:flex;align-items:center;gap:10px;background:rgba(79,195,161,.08);border-bottom:1px solid rgba(79,195,161,.15);}
+  #sync-status{color:var(--accent2);font-family:'DM Mono',monospace;}
+  #sync-url-wrap{display:flex;align-items:center;gap:8px;flex:1;}
+  #sync-url{flex:1;max-width:520px;padding:4px 8px;border-radius:5px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:10px;outline:none;}
+  #sync-url:focus{border-color:var(--accent);}
+  .sync-btn{padding:4px 10px;border-radius:5px;font-size:10px;border:1px solid var(--accent2);background:none;color:var(--accent2);cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .sync-btn:hover{background:rgba(79,195,161,.1);}
+
+  header{padding:24px 40px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  .brand-name{font-family:'DM Serif Display',serif;font-size:24px;color:var(--accent);}
+  .brand-sub{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-top:3px;}
+  .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .save-indicator{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;}
+  .save-dot{width:7px;height:7px;border-radius:50%;background:var(--won-text);flex-shrink:0;transition:background .3s;}
+  .save-dot.saving{background:var(--accent);}
+  .io-btn{padding:6px 12px;border-radius:6px;font-size:11px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);}
+  .io-btn:hover{border-color:var(--accent2);color:var(--accent2);}
+  .io-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+
+  .kpis{display:flex;gap:8px;flex-wrap:wrap;padding:14px 40px;border-bottom:1px solid var(--border);background:var(--surface);}
+  .kpi{flex:1;min-width:100px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;}
+  .kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);}
+  .kpi-value{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;margin-top:2px;}
+  .kpi-value.green{color:var(--won-text);}.kpi-value.red{color:var(--lost-text);}
+  .kpi-value.yellow{color:var(--accent);}.kpi-value.white{color:var(--text);}.kpi-value.blue{color:var(--pending-text);}
+
+  .toolbar{display:flex;align-items:center;gap:8px;padding:12px 40px;flex-wrap:wrap;}
+  .toolbar-left{display:flex;gap:6px;flex-wrap:wrap;flex:1;}
+  .filter-btn{padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;transition:all .15s;text-transform:uppercase;letter-spacing:.7px;}
+  .filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.08);}
+  .search-box{padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;width:190px;outline:none;transition:border-color .18s;}
+  .search-box:focus{border-color:var(--accent);}
+  .add-btn{padding:6px 16px;border-radius:6px;background:var(--accent);color:#0d0f14;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.8px;border:none;cursor:pointer;white-space:nowrap;}
+  .add-btn:hover{opacity:.85;}
+
+  .table-wrap{padding:0 40px 28px;overflow-x:auto;}
+  table{width:100%;border-collapse:separate;border-spacing:0;min-width:1200px;}
+  thead th{padding:8px 10px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:2;cursor:pointer;user-select:none;white-space:nowrap;}
+  thead th:hover{color:var(--accent);}
+  tbody tr{transition:background .12s;}
+  tbody tr:hover{background:var(--surface2);}
+  td{padding:9px 10px;vertical-align:top;border-bottom:1px solid var(--border);font-size:12px;}
+
+  .tag-agence{display:inline-block;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;font-size:10px;background:rgba(79,195,161,.1);color:var(--accent2);border:1px solid rgba(79,195,161,.2);white-space:nowrap;}
+  .montant{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);}
+  .status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+  .badge-won{background:var(--won);border:1px solid var(--won-border);color:var(--won-text);}
+  .badge-lost{background:var(--lost);border:1px solid var(--lost-border);color:var(--lost-text);}
+  .badge-pending{background:var(--pending);border:1px solid var(--pending-border);color:var(--pending-text);}
+  .badge-todo{background:var(--todo);border:1px solid var(--todo-border);color:var(--todo-text);}
+  .badge-nrep{background:var(--nrep);border:1px solid var(--nrep-border);color:var(--nrep-text);}
+  .badge-annule{background:var(--annule);border:1px solid var(--annule-border);color:var(--annule-text);}
+  .dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+  .no-results{text-align:center;padding:48px 0;color:var(--muted);font-style:italic;}
+
+  .prestation-list{display:flex;flex-wrap:wrap;gap:3px;max-width:180px;}
+  .pill{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;white-space:nowrap;border:1px solid;}
+  .pill-aat{background:rgba(224,92,92,.13);color:#e08c8c;border-color:rgba(224,92,92,.28);}
+  .pill-aad{background:rgba(200,60,60,.13);color:#d06060;border-color:rgba(200,60,60,.28);}
+  .pill-dta{background:rgba(180,80,80,.13);color:#c07070;border-color:rgba(180,80,80,.28);}
+  .pill-pcrep{background:rgba(180,120,60,.15);color:#d4935a;border-color:rgba(180,120,60,.30);}
+  .pill-pat{background:rgba(160,100,40,.15);color:#c08040;border-color:rgba(160,100,40,.30);}
+  .pill-dpe{background:rgba(79,195,161,.12);color:#4fc3a1;border-color:rgba(79,195,161,.25);}
+  .pill-gaz{background:rgba(232,197,71,.12);color:#e8c547;border-color:rgba(232,197,71,.25);}
+  .pill-elec{background:rgba(100,160,240,.12);color:#7ab0f0;border-color:rgba(100,160,240,.25);}
+  .pill-ep{background:rgba(160,100,220,.12);color:#b07fdc;border-color:rgba(160,100,220,.25);}
+  .pill-cvat{background:rgba(80,180,200,.12);color:#50b4c8;border-color:rgba(80,180,200,.25);}
+  .pill-hap{background:rgba(120,160,80,.12);color:#90c050;border-color:rgba(120,160,80,.25);}
+  .pill-ae{background:rgba(200,80,60,.12);color:#c85048;border-color:rgba(200,80,60,.25);}
+  .pill-radon{background:rgba(80,200,120,.12);color:#60c878;border-color:rgba(80,200,120,.25);}
+  .pill-amo{background:rgba(130,130,200,.12);color:#9090d0;border-color:rgba(130,130,200,.25);}
+  .pill-isdi{background:rgba(160,140,80,.12);color:#c0a840;border-color:rgba(160,140,80,.25);}
+  .pill-ssp{background:rgba(100,160,100,.12);color:#70b070;border-color:rgba(100,160,100,.25);}
+  .pill-autre{background:rgba(140,140,160,.1);color:#9898b8;border-color:rgba(140,140,160,.2);}
+
+  .causes-list{display:flex;flex-wrap:wrap;gap:3px;max-width:180px;}
+  .cause-tag{display:inline-block;padding:2px 6px;border-radius:4px;font-size:9px;white-space:nowrap;background:rgba(224,92,92,.1);color:#e08c8c;border:1px solid rgba(224,92,92,.22);}
+  .cause-empty{color:var(--muted);font-size:10px;}
+  .concurrent-cell{font-size:11px;color:#d4935a;font-style:italic;}
+
+  .action-btn{padding:3px 7px;border-radius:4px;font-size:10px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .12s;margin-right:3px;}
+  .action-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .action-btn.del:hover{border-color:var(--danger);color:var(--danger);}
+
+  /* MODAL */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+  .modal-bg.open{display:flex;}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:660px;max-width:95vw;max-height:90vh;overflow-y:auto;padding:28px;position:relative;}
+  .modal h2{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent);margin-bottom:20px;}
+  .modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .form-full{grid-column:1/-1;}
+  .form-group{display:flex;flex-direction:column;gap:5px;}
+  .form-group label,.section-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:2px;}
+  .form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 10px;outline:none;transition:border-color .15s;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+  .form-group textarea{resize:vertical;min-height:60px;}
+  .modal-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:18px;}
+  .modal-actions-right{display:flex;gap:8px;}
+  .btn-cancel{padding:7px 16px;border-radius:7px;font-size:13px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;}
+  .btn-save{padding:7px 20px;border-radius:7px;font-size:13px;background:var(--accent);color:#0d0f14;border:none;font-weight:600;cursor:pointer;}
+  .btn-delete{padding:7px 16px;border-radius:7px;font-size:13px;background:rgba(224,92,92,.15);color:var(--lost-text);border:1px solid var(--lost-border);cursor:pointer;}
+  .btn-delete:hover{background:rgba(224,92,92,.25);}
+
+  .check-grid{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;}
+  .check-grid.red-border{border-color:rgba(224,92,92,.3);}
+  .hcheck,.pcheck{display:none;}
+  .hcheck-label,.pcheck-label{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s;user-select:none;}
+  .pcheck:checked+.pcheck-label{border-color:var(--accent);color:var(--accent);background:rgba(232,197,71,.1);}
+  .hcheck:checked+.hcheck-label{border-color:#e05c5c;color:#e08c8c;background:rgba(224,92,92,.1);}
+
+  /* STATS */
+  .stats-section{padding:18px 40px 28px;background:var(--surface);border-top:1px solid var(--border);}
+  .stats-title{font-family:'DM Serif Display',serif;font-size:16px;color:var(--accent);margin-bottom:16px;}
+  .stats-cols{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+  @media(max-width:800px){.stats-cols{grid-template-columns:1fr;}}
+  .stats-col-head{font-size:11px;text-transform:uppercase;letter-spacing:1.2px;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .stat-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+  .stat-label{flex:1;font-size:12px;color:var(--text);line-height:1.3;}
+  .stat-count{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;min-width:22px;text-align:right;}
+  .stat-pct{font-size:10px;color:var(--muted);min-width:36px;text-align:right;}
+  .stat-bar-wrap{width:80px;height:5px;background:var(--border);border-radius:3px;overflow:hidden;flex-shrink:0;}
+  .stat-bar{height:100%;border-radius:3px;transition:width .4s;}
+  .stat-bar.red{background:var(--danger);}
+  .stat-bar.orange{background:#d4935a;}
+  .stat-empty{color:var(--muted);font-size:12px;font-style:italic;padding:8px 0;}
+
+  /* CONFIRM MODAL */
+  .confirm-modal{background:var(--surface);border:1px solid var(--lost-border);border-radius:12px;width:400px;max-width:90vw;padding:24px;text-align:center;}
+  .confirm-modal h3{font-family:'DM Serif Display',serif;color:var(--lost-text);margin-bottom:10px;font-size:18px;}
+  .confirm-modal p{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.5;}
+  .confirm-btns{display:flex;gap:10px;justify-content:center;}
+  .btn-confirm-del{padding:8px 20px;border-radius:7px;background:var(--danger);color:#fff;border:none;cursor:pointer;font-weight:600;font-size:13px;}
+  .btn-confirm-cancel{padding:8px 20px;border-radius:7px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:13px;}
+
+  /* MODAL CONFIG */
+  .config-modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:600px;max-width:95vw;padding:28px;position:relative;}
+  .config-modal h2{font-family:'DM Serif Display',serif;font-size:20px;color:var(--accent);margin-bottom:8px;}
+  .config-modal p{color:var(--muted);font-size:12px;margin-bottom:16px;line-height:1.6;}
+  .config-modal ol{color:var(--muted);font-size:12px;line-height:2;padding-left:20px;margin-bottom:16px;}
+  .config-modal ol li strong{color:var(--text);}
+  .config-input{width:100%;padding:9px 12px;border-radius:7px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;margin-bottom:12px;}
+  .config-input:focus{border-color:var(--accent);}
+  .btn-connect{padding:9px 20px;border-radius:7px;background:var(--accent);color:#0d0f14;border:none;font-weight:600;cursor:pointer;font-size:13px;}
+</style>
+</head>
+<body>
+
+<!-- BANDEAU SYNC -->
+<div id="sync-bar">
+  <span id="sync-status" style="color: var(--accent2);">⬤ Google Sheets</span>
+  <div id="sync-url-wrap">
+    <span style="color:var(--muted);font-size:10px">URL Google Apps Script :</span>
+    <input type="text" id="sync-url" placeholder="https://script.google.com/macros/s/VOTRE_ID/exec" oninput="saveConfig()">
+    <button class="sync-btn" onclick="syncNow()">↻ Sync</button>
+    <button class="sync-btn" onclick="pushAll()">⬆ Tout envoyer</button>
+    <button class="sync-btn" onclick="openConfig()">⚙ Guide</button>
+  </div>
+  <span id="last-sync" style="color:var(--muted);font-size:10px;font-family:&#39;DM Mono&#39;,monospace">✓ Sync 12:25</span>
+</div>
+
+<header>
+  <div>
+    <div class="brand-name">Chevalier Diag</div>
+    <div class="brand-sub">Suivi des Appels d'Offres — Multi-Agences</div>
+  </div>
+  <div class="header-right">
+    <div class="save-indicator"><div class="save-dot" id="save-dot"></div><span id="save-label">Sauvegardé · 12:25</span></div>
+    <button class="io-btn" onclick="exportData()">⬇ Exporter JSON</button>
+    <button class="io-btn" onclick="document.getElementById(&#39;import-fusion&#39;).click()">⬆ Importer (fusion)</button>
+    <button class="io-btn danger" onclick="resetData()">↺ Réinitialiser</button>
+    <input type="file" id="import-fusion" accept=".json" style="display:none" onchange="importFusion(event)">
+  </div>
+</header>
+
+<div class="kpis" id="kpi-strip">
+    <div class="kpi"><div class="kpi-label">Total AO</div><div class="kpi-value white">78</div></div>
+    <div class="kpi"><div class="kpi-label">Gagnés</div><div class="kpi-value green">2</div></div>
+    <div class="kpi"><div class="kpi-label">Perdus</div><div class="kpi-value red">19</div></div>
+    <div class="kpi"><div class="kpi-label">À répondre</div><div class="kpi-value yellow">13</div></div>
+    <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value blue">19</div></div>
+    <div class="kpi"><div class="kpi-label">Non répondus</div><div class="kpi-value white">24</div></div>
+    <div class="kpi"><div class="kpi-label">Taux succès</div><div class="kpi-value red">10%</div></div></div>
+
+<div class="toolbar">
+  <div class="toolbar-left">
+    <button class="filter-btn" onclick="setFilter(&#39;all&#39;,this)">Tous</button>
+    <button class="filter-btn" onclick="setFilter(&#39;gagné&#39;,this)">✓ Gagnés</button>
+    <button class="filter-btn" onclick="setFilter(&#39;perdu&#39;,this)">✗ Perdus</button>
+    <button class="filter-btn active" onclick="setFilter(&#39;à répondre&#39;,this)">⚡ À répondre</button>
+    <button class="filter-btn" onclick="setFilter(&#39;en attente&#39;,this)">⏳ En attente</button>
+    <button class="filter-btn" onclick="setFilter(&#39;non répondu&#39;,this)">— Non répondu</button>
+    <button class="filter-btn" onclick="setFilter(&#39;annulé&#39;,this)">∅ Annulé</button>
+    <input class="search-box" type="text" id="search" placeholder="Rechercher…" oninput="render()">
+  </div>
+  <button class="add-btn" onclick="openModal()">+ Nouvel AO</button>
+</div>
+
+<div style="padding:8px 40px;background:rgba(232,197,71,.06);border-bottom:1px solid rgba(232,197,71,.15);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+  <span>✏️ <strong style="color:var(--accent)">Double-clic</strong> sur une cellule pour modifier</span>
+  <span>☁️ Configurez l'URL Apps Script en haut pour la <strong style="color:var(--accent2)">synchronisation multi-utilisateurs</strong></span>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th onclick="sortBy(&#39;client&#39;)">Client / MO ↕</th>
+      <th onclick="sortBy(&#39;agence&#39;)">Agence ↕</th>
+      <th>Prestations</th>
+      <th onclick="sortBy(&#39;montant&#39;)">Montant / Durée ↕</th>
+      <th onclick="sortBy(&#39;date_limite&#39;)">Date limite ↕</th>
+      <th onclick="sortBy(&#39;date_depot&#39;)">Date dépôt ↕</th>
+      <th onclick="sortBy(&#39;statut&#39;)">Statut ↕</th>
+      <th>Concurrent attributaire</th>
+      <th>Causes du rejet</th>
+      <th>Résumé technique</th>
+      <th onclick="sortBy(&#39;referent&#39;)">Référent ↕</th>
+      <th>Actions</th>
+    </tr></thead>
+    <tbody id="tbody"><tr>
+    <td ondblclick="makeEditable(this,216,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">CHU de CAEN</td>
+    <td><span class="tag-agence">Centre-Manche</span></td>
+    <td><div class="prestation-list"><span class="pill pill-dta">Dossier Technique Amiante</span><span class="pill pill-amo">AMO</span></div></td>
+    <td ondblclick="makeEditable(this,216,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">10 000 €</td>
+    <td ondblclick="makeEditable(this,216,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Fri Jul 24 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,216,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,216,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,216,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,216,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(216)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(216,&#39;CHU de CAEN&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,65,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">XLHABITAT - AGEN</td>
+    <td><span class="tag-agence">Centre-Manche</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-aad">Amiante Avant Démolition</span><span class="pill pill-dta">Dossier Technique Amiante</span><span class="pill pill-cvat">Contrôle Visuel Avant/Après Travaux</span><span class="pill pill-autre">Autre (PEMD / Empoussiérement)</span></div></td>
+    <td ondblclick="makeEditable(this,65,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">150 000 € HT / AN (3 ANS)</td>
+    <td ondblclick="makeEditable(this,65,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Fri Jun 12 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,65,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,65,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,65,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,65,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(65)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(65,&#39;XLHABITAT - AGEN&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,51,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">COMMUNAUTE D'AGGLOMERATION HENIN CARVIN</td>
+    <td><span class="tag-agence">Haut-de-France</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-aad">Amiante Avant Démolition</span><span class="pill pill-dta">Dossier Technique Amiante</span><span class="pill pill-pcrep">Plomb - CREP</span><span class="pill pill-ep">État Parasitaire</span><span class="pill pill-autre">Autre (PEMD / Empoussiérement)</span></div></td>
+    <td ondblclick="makeEditable(this,51,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">20 000€/an - 2ans</td>
+    <td ondblclick="makeEditable(this,51,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Fri Jun 19 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,51,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,51,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,51,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,51,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(51)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(51,&#39;COMMUNAUTE D\&#39;AGGLOMERATION HENIN CARVIN&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,213,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">CAMPUS DE L'ESPACE</td>
+    <td><span class="tag-agence">Centre-Manche</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-aad">Amiante Avant Démolition</span><span class="pill pill-dta">Dossier Technique Amiante</span><span class="pill pill-pcrep">Plomb - CREP</span></div></td>
+    <td ondblclick="makeEditable(this,213,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">- 120jours</td>
+    <td ondblclick="makeEditable(this,213,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Mon Jun 22 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,213,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,213,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,213,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,213,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(213)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(213,&#39;CAMPUS DE L\&#39;ESPACE&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,217,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">COM COM LISERES DE L'OISE</td>
+    <td><span class="tag-agence">Centre-Manche</span></td>
+    <td><div class="prestation-list"><span class="pill pill-amo">AMO</span></div></td>
+    <td ondblclick="makeEditable(this,217,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">Assaisnissment</td>
+    <td ondblclick="makeEditable(this,217,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Mon Jun 29 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,217,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,217,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,217,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,217,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(217)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(217,&#39;COM COM LISERES DE L\&#39;OISE&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,71,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">MENSOLIA</td>
+    <td><span class="tag-agence">Haut-de-France</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-pcrep">Plomb - CREP</span><span class="pill pill-dpe">DPE</span></div></td>
+    <td ondblclick="makeEditable(this,71,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">— (4 ANS)</td>
+    <td ondblclick="makeEditable(this,71,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Thu Jun 04 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,71,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,71,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,71,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,71,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(71)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(71,&#39;MENSOLIA&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,25,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">AURAY QUIBERON TERRE ATLANTIQUE</td>
+    <td><span class="tag-agence">Bretagne</span></td>
+    <td><div class="prestation-list"><span class="pill pill-hap">HAP Enrobés</span><span class="pill pill-ae">Amiante Enrobés</span></div></td>
+    <td ondblclick="makeEditable(this,25,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">107 000€/an (4ans)</td>
+    <td ondblclick="makeEditable(this,25,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Thu Jun 25 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,25,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,25,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,25,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,25,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(25)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(25,&#39;AURAY QUIBERON TERRE ATLANTIQUE&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,20,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">VENDEE HABITAT</td>
+    <td><span class="tag-agence">Pays de la Loire</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-aad">Amiante Avant Démolition</span><span class="pill pill-pcrep">Plomb - CREP</span><span class="pill pill-gaz">Gaz</span><span class="pill pill-elec">Élec</span><span class="pill pill-ep">État Parasitaire</span></div></td>
+    <td ondblclick="makeEditable(this,20,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">45 000€/an - 4ans</td>
+    <td ondblclick="makeEditable(this,20,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Wed Apr 08 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,20,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,20,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,20,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,20,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(20)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(20,&#39;VENDEE HABITAT&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,26,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">CPAM D'ILLE ET VILAINE</td>
+    <td><span class="tag-agence">Bretagne</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-aad">Amiante Avant Démolition</span><span class="pill pill-dta">Dossier Technique Amiante</span><span class="pill pill-pat">Plomb Avant Travaux</span></div></td>
+    <td ondblclick="makeEditable(this,26,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">120 000€/max (4ans)</td>
+    <td ondblclick="makeEditable(this,26,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Wed Jul 08 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,26,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,26,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,26,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,26,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(26)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(26,&#39;CPAM D\&#39;ILLE ET VILAINE&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,27,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">SYNDICAT INTERCOMMUNAL D'ENERGIES DE MAINE-ET-LOIRE SIEML</td>
+    <td><span class="tag-agence">Bretagne</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-hap">HAP Enrobés</span><span class="pill pill-ae">Amiante Enrobés</span><span class="pill pill-autre">Autre (PEMD / Empoussiérement)</span></div></td>
+    <td ondblclick="makeEditable(this,27,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">250 000€ - 4ans</td>
+    <td ondblclick="makeEditable(this,27,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Wed Jul 08 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,27,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,27,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,27,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,27,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(27)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(27,&#39;SYNDICAT INTERCOMMUNAL D\&#39;ENERGIES DE MAINE-ET-LOIRE SIEML&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,218,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">CA DINAN - Diag assainissement</td>
+    <td><span class="tag-agence">Bretagne</span></td>
+    <td><div class="prestation-list"><span class="pill pill-amo">AMO</span></div></td>
+    <td ondblclick="makeEditable(this,218,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">—</td>
+    <td ondblclick="makeEditable(this,218,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Wed Jul 15 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,218,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,218,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,218,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,218,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(218)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(218,&#39;CA DINAN - Diag assainissement&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,59,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">SCDI LA CAENNAISE</td>
+    <td><span class="tag-agence">Centre-Manche</span></td>
+    <td><div class="prestation-list"><span class="pill pill-aat">Amiante Avant Travaux</span><span class="pill pill-aad">Amiante Avant Démolition</span><span class="pill pill-dta">Dossier Technique Amiante</span><span class="pill pill-pcrep">Plomb - CREP</span><span class="pill pill-dpe">DPE</span><span class="pill pill-gaz">Gaz</span><span class="pill pill-elec">Élec</span><span class="pill pill-autre">Autre (PEMD / Empoussiérement)</span></div></td>
+    <td ondblclick="makeEditable(this,59,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">160 000€/an - 4 ans</td>
+    <td ondblclick="makeEditable(this,59,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Wed Jun 10 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,59,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,59,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,59,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,59,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(59)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(59,&#39;SCDI LA CAENNAISE&#39;)">🗑</button>
+    </td>
+  </tr><tr>
+    <td ondblclick="makeEditable(this,24,&#39;client&#39;)" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">NANTES METROPOLE</td>
+    <td><span class="tag-agence">Pays de la Loire</span></td>
+    <td><div class="prestation-list"><span class="pill pill-hap">HAP Enrobés</span><span class="pill pill-ae">Amiante Enrobés</span><span class="pill pill-autre">Autre (PEMD / Empoussiérement)</span></div></td>
+    <td ondblclick="makeEditable(this,24,&#39;montant&#39;)" title="Double-clic pour modifier" class="montant" style="cursor:text">750 000€/an (4ans)</td>
+    <td ondblclick="makeEditable(this,24,&#39;date_limite&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">Wed Jun 17 2026 00:00:00 GMT+0200 (heure d’été d’Europe centrale)</td>
+    <td ondblclick="makeEditable(this,24,&#39;date_depot&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:&#39;DM Mono&#39;,monospace;font-size:11px;cursor:text">—</td>
+    <td><span class="status-badge badge-todo"><span class="dot"></span>⚡ À répondre</span></td>
+    <td ondblclick="makeEditable(this,24,&#39;rex&#39;)" title="Double-clic pour modifier" style="cursor:text"><span class="cause-empty">—</span></td>
+    <td><span class="cause-empty">—</span></td>
+    <td ondblclick="makeEditable(this,24,&#39;resume_technique&#39;)" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:var(--muted);line-height:1.4;cursor:text">—</td>
+    <td ondblclick="makeEditable(this,24,&#39;referent&#39;)" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text"><span style="color:var(--muted)">—</span></td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(24)">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(24,&#39;NANTES METROPOLE&#39;)">🗑</button>
+    </td>
+  </tr></tbody>
+  </table>
+  <div class="no-results" id="no-results" style="display:none">Aucun appel d'offres trouvé.</div>
+</div>
+
+<div class="stats-section">
+  <div class="stats-title">📊 Analyse REX — Statistiques en temps réel</div>
+  <div class="stats-cols">
+    <div><div class="stats-col-head">Causes de rejet</div><div id="stats-causes">
+    <div class="stat-row">
+      <div class="stat-label">Prix trop élevé</div>
+      <div class="stat-count" style="color:var(--lost-text)">12</div>
+      <div class="stat-pct">63%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:100%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Méthodologie insuffisante</div>
+      <div class="stat-count" style="color:var(--lost-text)">8</div>
+      <div class="stat-pct">42%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:67%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Délais trop longs</div>
+      <div class="stat-count" style="color:var(--lost-text)">6</div>
+      <div class="stat-pct">32%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:50%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Offre technique insuffisante</div>
+      <div class="stat-count" style="color:var(--lost-text)">5</div>
+      <div class="stat-pct">26%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:42%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Organisation/organigramme inadapté</div>
+      <div class="stat-count" style="color:var(--lost-text)">4</div>
+      <div class="stat-pct">21%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:33%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Critère environnemental insuffisant</div>
+      <div class="stat-count" style="color:var(--lost-text)">3</div>
+      <div class="stat-pct">16%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:25%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Motif non communiqué</div>
+      <div class="stat-count" style="color:var(--lost-text)">2</div>
+      <div class="stat-pct">11%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:17%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Réactivité / disponibilité insuffisante</div>
+      <div class="stat-count" style="color:var(--lost-text)">2</div>
+      <div class="stat-pct">11%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:17%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">Dossier incomplet</div>
+      <div class="stat-count" style="color:var(--lost-text)">1</div>
+      <div class="stat-pct">5%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar red" style="width:8%"></div></div>
+    </div></div></div>
+    <div><div class="stats-col-head">Concurrents attributaires</div><div id="stats-concurrents">
+    <div class="stat-row">
+      <div class="stat-label">ADX GROUPE</div>
+      <div class="stat-count" style="color:#d4935a">5</div>
+      <div class="stat-pct">26%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:100%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">AED EXPERTISE</div>
+      <div class="stat-count" style="color:#d4935a">3</div>
+      <div class="stat-pct">16%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:60%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">AC ENVIRONNEMENT</div>
+      <div class="stat-count" style="color:#d4935a">2</div>
+      <div class="stat-pct">11%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:40%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">A COMPLETER</div>
+      <div class="stat-count" style="color:#d4935a">2</div>
+      <div class="stat-pct">11%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:40%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">GENOVEXPERT</div>
+      <div class="stat-count" style="color:#d4935a">1</div>
+      <div class="stat-pct">5%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:20%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">SOCOTEC DIAGNOSTIC</div>
+      <div class="stat-count" style="color:#d4935a">1</div>
+      <div class="stat-pct">5%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:20%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">AED EXPERTISE et BIOVAL</div>
+      <div class="stat-count" style="color:#d4935a">1</div>
+      <div class="stat-pct">5%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:20%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">ADX GROUPE / AC ENVIRONNEMENT</div>
+      <div class="stat-count" style="color:#d4935a">1</div>
+      <div class="stat-pct">5%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:20%"></div></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-label">FMDC DIAGNOSTICS</div>
+      <div class="stat-count" style="color:#d4935a">1</div>
+      <div class="stat-pct">5%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar orange" style="width:20%"></div></div>
+    </div></div></div>
+  </div>
+</div>
+
+<!-- MODAL AO -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2 id="modal-title">Modifier l'AO</h2>
+    <div class="form-grid">
+      <div class="form-group form-full"><label>Client / Maître d'ouvrage</label><input type="text" id="f-client"></div>
+      <div class="form-group">
+        <label>Agence</label>
+        <select id="f-agence">
+          <option value="">— Choisir —</option>
+          <option>Cherbourg</option><option>Centre-Manche</option>
+          <option>Haut-de-France</option><option>Bretagne</option><option>Pays de la Loire</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="f-statut" onchange="togglePerdu()">
+          <option value="à répondre">À répondre</option>
+          <option value="en attente">En attente de réponse</option>
+          <option value="gagné">Gagné</option>
+          <option value="perdu">Perdu</option>
+          <option value="non répondu">Non répondu</option>
+          <option value="annulé">Annulé / Sans suite</option>
+        </select>
+      </div>
+      <div class="form-group form-full"><label>Montant / Durée</label><input type="text" id="f-montant" placeholder="ex: 200 000 € HT (4 ANS)"></div>
+      <div class="form-group form-full">
+        <div class="section-label">Prestations concernées</div>
+        <div class="check-grid">
+          <input class="pcheck" type="checkbox" id="p-aat" value="Amiante Avant Travaux"><label class="pcheck-label" for="p-aat">Amiante Avant Travaux</label>
+          <input class="pcheck" type="checkbox" id="p-aad" value="Amiante Avant Démolition"><label class="pcheck-label" for="p-aad">Amiante Avant Démolition</label>
+          <input class="pcheck" type="checkbox" id="p-dta" value="Dossier Technique Amiante"><label class="pcheck-label" for="p-dta">Dossier Technique Amiante</label>
+          <input class="pcheck" type="checkbox" id="p-pcrep" value="Plomb - CREP"><label class="pcheck-label" for="p-pcrep">Plomb - CREP</label>
+          <input class="pcheck" type="checkbox" id="p-pat" value="Plomb Avant Travaux"><label class="pcheck-label" for="p-pat">Plomb Avant Travaux</label>
+          <input class="pcheck" type="checkbox" id="p-dpe" value="DPE"><label class="pcheck-label" for="p-dpe">DPE</label>
+          <input class="pcheck" type="checkbox" id="p-gaz" value="Gaz"><label class="pcheck-label" for="p-gaz">Gaz</label>
+          <input class="pcheck" type="checkbox" id="p-elec" value="Élec"><label class="pcheck-label" for="p-elec">Élec</label>
+          <input class="pcheck" type="checkbox" id="p-ep" value="État Parasitaire"><label class="pcheck-label" for="p-ep">État Parasitaire</label>
+          <input class="pcheck" type="checkbox" id="p-cvat" value="Contrôle Visuel Avant/Après Travaux"><label class="pcheck-label" for="p-cvat">Contrôle Visuel Av/Ap Trav.</label>
+          <input class="pcheck" type="checkbox" id="p-hap" value="HAP Enrobés"><label class="pcheck-label" for="p-hap">HAP Enrobés</label>
+          <input class="pcheck" type="checkbox" id="p-ae" value="Amiante Enrobés"><label class="pcheck-label" for="p-ae">Amiante Enrobés</label>
+          <input class="pcheck" type="checkbox" id="p-radon" value="Radon"><label class="pcheck-label" for="p-radon">Radon</label>
+          <input class="pcheck" type="checkbox" id="p-amo" value="AMO"><label class="pcheck-label" for="p-amo">AMO</label>
+          <input class="pcheck" type="checkbox" id="p-isdi" value="ISDI"><label class="pcheck-label" for="p-isdi">ISDI</label>
+          <input class="pcheck" type="checkbox" id="p-ssp" value="SSP Pollution de Sol"><label class="pcheck-label" for="p-ssp">SSP Pollution de Sol</label>
+          <input class="pcheck" type="checkbox" id="p-autre" value="Autre (PEMD / Empoussiérement)"><label class="pcheck-label" for="p-autre">Autre (PEMD / Empoussiérement)</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Date limite de remise</label><input type="date" id="f-date-limite"></div>
+      <div class="form-group"><label>Date de dépôt</label><input type="date" id="f-date-depot"></div>
+      <div class="form-group form-full" id="g-concurrent" style="display: none;">
+        <label>Concurrent attributaire</label>
+        <input type="text" id="f-rex" placeholder="ex: SOCOTEC, BIOVALE, ADX GROUPE…">
+      </div>
+      <div class="form-group form-full" id="g-causes" style="display: none;">
+        <div class="section-label">Causes du rejet</div>
+        <div class="check-grid red-border">
+          <input class="hcheck" type="checkbox" id="c-prix" value="Prix trop élevé"><label class="hcheck-label" for="c-prix">💰 Prix trop élevé</label>
+          <input class="hcheck" type="checkbox" id="c-tech" value="Offre technique insuffisante"><label class="hcheck-label" for="c-tech">📋 Offre technique insuffisante</label>
+          <input class="hcheck" type="checkbox" id="c-delai" value="Délais trop longs"><label class="hcheck-label" for="c-delai">⏰ Délais trop longs</label>
+          <input class="hcheck" type="checkbox" id="c-metho" value="Méthodologie insuffisante"><label class="hcheck-label" for="c-metho">🔬 Méthodologie insuffisante</label>
+          <input class="hcheck" type="checkbox" id="c-orga" value="Organisation/organigramme inadapté"><label class="hcheck-label" for="c-orga">🏗 Organisation inadaptée</label>
+          <input class="hcheck" type="checkbox" id="c-enviro" value="Critère environnemental insuffisant"><label class="hcheck-label" for="c-enviro">🌱 Critère env. insuffisant</label>
+          <input class="hcheck" type="checkbox" id="c-exp" value="Expérience / références insuffisantes"><label class="hcheck-label" for="c-exp">🏆 Expérience insuffisante</label>
+          <input class="hcheck" type="checkbox" id="c-dossier" value="Dossier incomplet"><label class="hcheck-label" for="c-dossier">📄 Dossier incomplet</label>
+          <input class="hcheck" type="checkbox" id="c-zone" value="Hors zone géographique"><label class="hcheck-label" for="c-zone">📍 Hors zone géographique</label>
+          <input class="hcheck" type="checkbox" id="c-certif" value="Certification manquante"><label class="hcheck-label" for="c-certif">✅ Certification manquante</label>
+          <input class="hcheck" type="checkbox" id="c-reactif" value="Réactivité / disponibilité insuffisante"><label class="hcheck-label" for="c-reactif">⚡ Réactivité insuffisante</label>
+          <input class="hcheck" type="checkbox" id="c-inconnu" value="Motif non communiqué"><label class="hcheck-label" for="c-inconnu">❓ Motif non communiqué</label>
+        </div>
+      </div>
+      <div class="form-group form-full"><label>Référent d'affaires</label><input type="text" id="f-referent" placeholder="Nom du référent en charge de cet AO"></div>
+      <div class="form-group form-full" id="g-resume" style="display: none;">
+        <label>Résumé technique (points bloquants hors prix)</label>
+        <textarea id="f-resume" placeholder="Ex: Mode opératoire lingette absent…" style="min-height:50px"></textarea>
+      </div>
+      <div class="form-group form-full"><label>Notes / Détails complets</label><textarea id="f-notes" placeholder="Classement, notes détaillées par critère, actions correctives…"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-delete" id="btn-delete-modal" style="" onclick="confirmDelete()">🗑 Supprimer cet AO</button>
+      <div class="modal-actions-right">
+        <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+        <button class="btn-save" onclick="saveEntry()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="modal-bg" id="confirm-bg">
+  <div class="confirm-modal">
+    <h3>Supprimer cet AO ?</h3>
+    <p id="confirm-text">Cette action est irréversible.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="document.getElementById(&#39;confirm-bg&#39;).classList.remove(&#39;open&#39;)">Annuler</button>
+      <button class="btn-confirm-del" onclick="doDelete()">Oui, supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIG -->
+<div class="modal-bg" id="config-bg">
+  <div class="modal config-modal">
+    <button class="modal-close" onclick="document.getElementById(&#39;config-bg&#39;).classList.remove(&#39;open&#39;)">×</button>
+    <h2>⚙ Connexion Google Sheets</h2>
+    <p>Pour synchroniser les données entre tous vos collègues en temps réel, suivez ces étapes <strong style="color:var(--text)">(5 minutes, une seule fois)</strong> :</p>
+    <ol>
+      <li>Ouvrez <strong>Google Sheets</strong> → créez une nouvelle feuille</li>
+      <li>Menu <strong>Extensions → Apps Script</strong></li>
+      <li>Effacez le code existant, collez le code fourni par Claude</li>
+      <li>Cliquez <strong>Déployer → Nouveau déploiement</strong></li>
+      <li>Type : <strong>Application Web</strong> · Accès : <strong>Tout le monde</strong></li>
+      <li>Copiez l'URL de déploiement et collez-la ci-dessous</li>
+    </ol>
+    <input type="text" class="config-input" id="config-url-input" placeholder="https://script.google.com/macros/s/.../exec">
+    <div style="display:flex;gap:10px;">
+      <button class="btn-connect" onclick="applyConfig()">✓ Connecter</button>
+      <button class="btn-cancel" onclick="document.getElementById(&#39;config-bg&#39;).classList.remove(&#39;open&#39;)">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PILL_MAP={'Amiante Avant Travaux':'pill-aat','Amiante Avant Démolition':'pill-aad','Dossier Technique Amiante':'pill-dta','Plomb - CREP':'pill-pcrep','Plomb Avant Travaux':'pill-pat','DPE':'pill-dpe','Gaz':'pill-gaz','Élec':'pill-elec','État Parasitaire':'pill-ep','Contrôle Visuel Avant/Après Travaux':'pill-cvat','HAP Enrobés':'pill-hap','Amiante Enrobés':'pill-ae','Radon':'pill-radon','AMO':'pill-amo','ISDI':'pill-isdi','SSP Pollution de Sol':'pill-ssp','Autre (PEMD / Empoussiérement)':'pill-autre'};
+
+let DEFAULT_DATA = [
+  {
+    "id": 1,
+    "client": "CHÂTEAU DE VERSAILLES",
+    "agence": "Centre-Manche",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb Avant Travaux",
+      "Contrôle Visuel Avant/Après Travaux",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "montant": "480 000 € (4 ANS)",
+    "date_limite": "26/01/2026",
+    "date_depot": "26/01/2026",
+    "statut": "perdu",
+    "rex": "GENOVEXPERT",
+    "causes": [
+      "Prix trop élevé",
+      "Méthodologie insuffisante",
+      "Délais trop longs"
+    ],
+    "resume_technique": "Mode opératoire lingette absent du mémoire. Délais poussières plomb hors plafond (visite 6j vs max 2j, rapport 15j vs max 4j).",
+    "notes": "Classé 11ème/12. Prix 13.74/40 vs GENOVEXPERT 33.54/40. Critère méthodologie : savoir-faire plomb Monuments Historiques insuffisant, scénario lingette non détaillé (en annexe seulement). Critère délais : non-conformité sur poussières plomb — visite 6j vs max imposé 2j, rapport 15j vs max 4j. Actions : revoir BPU IDF, rédiger MO lingette intégré au MT, structurer équipe régionale IDF + labo express J+1.",
+    "referent": ""
+  },
+  {
+    "id": 2,
+    "client": "HLM COUTANCES GRANVILLE",
+    "agence": "Centre-Manche",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "Dossier Technique Amiante"
+    ],
+    "montant": "179 472 € HT (2 ANS)",
+    "date_limite": "07/05/2026",
+    "date_depot": "07/05/2026",
+    "statut": "perdu",
+    "rex": "SOCOTEC DIAGNOSTIC",
+    "causes": [
+      "Prix trop élevé",
+      "Offre technique insuffisante",
+      "Délais trop longs"
+    ],
+    "resume_technique": "Mémoire technique trop peu détaillé (méthodologie ZPSO, campagnes groupées, qualif. intervenants). Délai rapport insuffisant.",
+    "notes": "2ème/5 Lot1 (16.37/20), 3ème/5 Lot2 (16.78/20). SOCOTEC 18.60/20 (109 655€ HT). DQE Lot1 52 250€ HT. Note technique 6.30/10 vs SOCOTEC 7.00/10 (Lot1). Note délai 1.40/2 (AED et ADX obtiennent 2.00/2). Actions : renforcer mémoire technique (MO ZPSO, retours exp. bailleurs sociaux), audit des coûts DAPP 1835 logements + DTA 145 cages, réduire délais engagement rapport.",
+    "referent": ""
+  },
+  {
+    "id": 3,
+    "client": "ORNE HABITAT - DEMOLITION FLERS",
+    "agence": "Centre-Manche",
+    "statut": "perdu",
+    "montant": "50 000 € TTC (120 JOURS)",
+    "prestations": [
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "date_limite": "09/02/2026",
+    "date_depot": "04/02/2026",
+    "referent": "",
+    "rex": "AED EXPERTISE",
+    "causes": [
+      "Offre technique insuffisante",
+      "Délais trop longs",
+      "Méthodologie insuffisante"
+    ],
+    "resume_technique": "Planning 28 jours ouvrés (2x trop long). Plateforme DiagInfo/SIGMA non détaillée, nommage RAAT/PLOMB absent du mémoire.",
+    "notes": "4ème/4. Note délais 2.92/20 vs AED 20.00/20 — écart de 17 points, facteur principal. Note méthodologie 15/20 vs AED 20/20. Note prix identique (51.83/60). Actions : cible ≤15 jours ouvrés, mutualiser visite amiante+plomb, labo 48-72h, détailler DiagInfo/SIGMA + nommage + CSV dans le MT."
+  },
+  {
+    "id": 5,
+    "client": "EDF",
+    "agence": "Centre-Manche",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Dossier Technique Amiante"
+    ],
+    "montant": "—",
+    "date_limite": "19/03/2026",
+    "date_depot": "",
+    "statut": "perdu",
+    "rex": "",
+    "causes": [
+      "Motif non communiqué"
+    ],
+    "resume_technique": "",
+    "notes": "Aucun retour de notation reçu.",
+    "referent": ""
+  },
+  {
+    "id": 6,
+    "client": "MONNAIE DE PARIS",
+    "agence": "Haut-de-France",
+    "statut": "perdu",
+    "montant": "210 000 € (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb Avant Travaux",
+      "Contrôle Visuel Avant/Après Travaux",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "16/02/2026",
+    "date_depot": "16/02/2026",
+    "referent": "",
+    "rex": "AED EXPERTISE et BIOVAL",
+    "causes": [
+      "Prix trop élevé"
+    ],
+    "resume_technique": "BIOVAL - A+P\nAED + MERULE\nExpérience PEMD & mesure d'empoussièrement insuffisamment valorisée pour un site patrimonial.",
+    "notes": "Classé hors top 3. BIOVALE attributaire. Actions : valoriser les références patrimoine historique dans le MT, renforcer la section PEMD/empoussièrement."
+  },
+  {
+    "id": 9,
+    "client": "FINISTERE HABITAT",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "montant": "1 500 000 € HT / LOT (3 ANS)",
+    "date_limite": "09/01/2026",
+    "date_depot": "",
+    "statut": "perdu",
+    "rex": "ADX GROUPE",
+    "causes": [
+      "Prix trop élevé",
+      "Délais trop longs"
+    ],
+    "resume_technique": "Délais proposés aux plafonds contractuels sans les dépasser — ADX a proposé des délais bien plus courts (8.08/10 vs 3.97/10).",
+    "notes": "3ème/7. ADX 92.08/100. Prix Lot1 50.28/60 vs ADX 60/60, Lot2 51.06/60 vs ADX 60/60. Valeur technique égale (24/30). Actions : proposer délais nettement inférieurs aux plafonds (visite 7j, rapport 10j pour 1-10 logements), retravailler structure tarifaire bailleurs sociaux Bretagne.",
+    "referent": "—"
+  },
+  {
+    "id": 10,
+    "client": "RENNES METROPOLE",
+    "agence": "Bretagne",
+    "statut": "perdu",
+    "montant": "700 000 € / AN (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "HAP Enrobés",
+      "Amiante Enrobés"
+    ],
+    "date_limite": "20/03/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "AED EXPERTISE",
+    "causes": [
+      "Méthodologie insuffisante",
+      "Organisation/organigramme inadapté",
+      "Critère environnemental insuffisant"
+    ],
+    "resume_technique": "Critère env./hygiène 4/10 vs BV 9/10 (absence données chiffrées AT/MP, PPSPS, EPI souillés). Méthodologie voirie 9/10 vs BV 10/10.",
+    "notes": "6ème/Lot1 (7.47/10), 6ème/Lot2 (7.49/10). BV 8.01/10, prix 5.38/10 vs BV 5.68/10. Actions : ajouter plan de prévention type, bilan AT/MP 3 ans, indicateurs CO2 chiffrés, données EPI amiantés. Réévaluer BPU (forfait déplacement lot1 45€, analyse META 69.50€/éch.)."
+  },
+  {
+    "id": 11,
+    "client": "LORIENT AGGLOMERATION",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec",
+      "HAP Enrobés",
+      "Amiante Enrobés",
+      "Radon",
+      "État Parasitaire"
+    ],
+    "montant": "50 000 € HT / AN (4 ANS)",
+    "date_limite": "30/01/2026",
+    "date_depot": "",
+    "statut": "perdu",
+    "rex": "AC ENVIRONNEMENT",
+    "causes": [
+      "Prix trop élevé",
+      "Délais trop longs"
+    ],
+    "resume_technique": "Délais non individualisés par type de prestation — pouvoir adjudicateur : « Délais pour chaque diagnostic non précisé » (1.0/2 vs AC 1.4/2).",
+    "notes": "5ème/5 (7.02/10). AC ENVIRONNEMENT 8.89/10, 63 083€ HT. Sous-critère délais : planning générique RAAT J+15 uniquement, sans tableau par type (DPE, gaz, élec, radon, enrobés…). Actions : intégrer tableau synoptique délais par prestation dans tous les futurs mémoires. Revoir BPU : coût horaire MO 69€/h, coef. fournitures 1.35.",
+    "referent": ""
+  },
+  {
+    "id": 12,
+    "client": "CC DES VALS DE SAINTONGE",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Dossier Technique Amiante"
+    ],
+    "montant": "100 000 € HT / AN (4 ANS)",
+    "date_limite": "09/01/2026",
+    "date_depot": "",
+    "statut": "perdu",
+    "rex": "ADX GROUPE",
+    "causes": [
+      "Prix trop élevé",
+      "Réactivité / disponibilité insuffisante"
+    ],
+    "resume_technique": "Disponibilité 16/20 — délais urgence jugés trop longs (48h site + J+3 rapport = 10j total).",
+    "notes": "Classé n°4. ADX 19.52/20 vs Chevalier 17.31/20. Prix 16.12/20 vs ADX 12.00/20 (pondéré). Valeur technique supérieure à ADX (5.64 vs 5.52). Actions : formaliser délai urgence <48h intervention, rapport J+2 après visite. Retravailler BPU AM01-AM06.",
+    "referent": ""
+  },
+  {
+    "id": 13,
+    "client": "DEPARTEMENT DE LA SARTHE",
+    "agence": "Pays de la Loire",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "150 000 € HT / AN (4 ANS)",
+    "date_limite": "23/03/2026",
+    "date_depot": "",
+    "statut": "perdu",
+    "rex": "ADX GROUPE / AC ENVIRONNEMENT",
+    "causes": [
+      "Prix trop élevé",
+      "Organisation/organigramme inadapté",
+      "Méthodologie insuffisante"
+    ],
+    "resume_technique": "Organigramme incohérent avec la réalité opérationnelle. Plan de communication absent. Gestion des complexes insuffisante. Coordination phases travaux non décrite.",
+    "notes": "3ème/6 Lot1 (79.73/100), 4ème/7 Lot2 (79.32/100). Note technique 29.80/40. Manquements : organigramme dédié marché manquant, plan formation insuffisamment quantifié (20h/an), gestion matériaux hétérogènes/complexes non détaillée, plan communication absent, planification Gantt absente. Actions : créer organigramme dédié, détailler plan formation par thème, développer section complexes + interface labo, intégrer plan comm. + planning Gantt.",
+    "referent": ""
+  },
+  {
+    "id": 15,
+    "client": "FONCIERE MEDICO SOCIALE ENEAL",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "—",
+    "date_limite": "10/06/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL100626.",
+    "referent": ""
+  },
+  {
+    "id": 17,
+    "client": "PORT DE LA ROCHELLE",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Dossier Technique Amiante"
+    ],
+    "montant": "—",
+    "date_limite": "03/06/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL03062026.",
+    "referent": ""
+  },
+  {
+    "id": 18,
+    "client": "REGION NOUVELLE AQUITAINE",
+    "agence": "Pays de la Loire",
+    "statut": "en attente",
+    "montant": "60 000€/an  - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "DPE",
+      "Gaz",
+      "Élec",
+      "État Parasitaire"
+    ],
+    "date_limite": "30/01/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-004-26 — DL300126."
+  },
+  {
+    "id": 19,
+    "client": "SRD ENERGIES",
+    "agence": "Pays de la Loire",
+    "statut": "gagné",
+    "montant": "60 000€/an - 4ans",
+    "prestations": [
+      "HAP Enrobés",
+      "Amiante Enrobés"
+    ],
+    "date_limite": "26/02/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-006-26 — DL260226."
+  },
+  {
+    "id": 20,
+    "client": "VENDEE HABITAT",
+    "agence": "Pays de la Loire",
+    "statut": "à répondre",
+    "montant": "45 000€/an - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Plomb - CREP",
+      "Gaz",
+      "Élec",
+      "État Parasitaire"
+    ],
+    "date_limite": "08/04/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-013-26 — DL080426."
+  },
+  {
+    "id": 21,
+    "client": "GIE AG2R",
+    "agence": "Bretagne",
+    "statut": "en attente",
+    "montant": "60 000€/an - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "Plomb Avant Travaux",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "date_limite": "20/04/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-014-26 — DL200426."
+  },
+  {
+    "id": 22,
+    "client": "QUEVILLY HABITAT",
+    "agence": "Centre-Manche",
+    "statut": "gagné",
+    "montant": "140 000€ - 4ans",
+    "prestations": [
+      "Gaz",
+      "Élec"
+    ],
+    "date_limite": "22/01/2026",
+    "date_depot": "09/01/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 23,
+    "client": "OPAC CORNOUAILLE",
+    "agence": "Bretagne",
+    "statut": "en attente",
+    "montant": "Non communiqué - CC sur 3ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "date_limite": "26/05/2026",
+    "date_depot": "22/05/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-017-26 — DL26052026."
+  },
+  {
+    "id": 24,
+    "client": "NANTES METROPOLE",
+    "agence": "Pays de la Loire",
+    "statut": "à répondre",
+    "montant": "750 000€/an (4ans)",
+    "prestations": [
+      "HAP Enrobés",
+      "Amiante Enrobés",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "17/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-016-26 — DL170626."
+  },
+  {
+    "id": 25,
+    "client": "AURAY QUIBERON TERRE ATLANTIQUE",
+    "agence": "Bretagne",
+    "statut": "à répondre",
+    "montant": "107 000€/an (4ans)",
+    "prestations": [
+      "HAP Enrobés",
+      "Amiante Enrobés"
+    ],
+    "date_limite": "25/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-018-26 — DL250626."
+  },
+  {
+    "id": 26,
+    "client": "CPAM D'ILLE ET VILAINE",
+    "agence": "Bretagne",
+    "statut": "à répondre",
+    "montant": "120 000€/max (4ans)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb Avant Travaux"
+    ],
+    "date_limite": "08/07/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-019-26 — DL080726."
+  },
+  {
+    "id": 27,
+    "client": "SYNDICAT INTERCOMMUNAL D'ENERGIES DE MAINE-ET-LOIRE SIEML",
+    "agence": "Bretagne",
+    "statut": "à répondre",
+    "montant": "250 000€ - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "HAP Enrobés",
+      "Amiante Enrobés",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "08/07/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL080726."
+  },
+  {
+    "id": 38,
+    "client": "CD34 - CONSEIL DEPARTEMENTAL DE L'HERAULT",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "DPE"
+    ],
+    "montant": "—",
+    "date_limite": "16/06/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL160626.",
+    "referent": ""
+  },
+  {
+    "id": 39,
+    "client": "DEPARTEMENT DE LA MANCHE",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "40 000 € HT (4 ANS)",
+    "date_limite": "23/04/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 230426.",
+    "referent": ""
+  },
+  {
+    "id": 40,
+    "client": "DEPARTEMENT DE L'OISE",
+    "agence": "Haut-de-France",
+    "statut": "en attente",
+    "montant": "167 500 € HT (4 ANS) lot 5 et 6",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "Gaz",
+      "Élec"
+    ],
+    "date_limite": "02/04/2026",
+    "date_depot": "01/04/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 41,
+    "client": "OPAC DE L'OISE",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec"
+    ],
+    "montant": "300 000 € / AN (4 ANS)",
+    "date_limite": "04/05/2026",
+    "date_depot": "30/04/2026",
+    "statut": "en attente",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 070526.",
+    "referent": ""
+  },
+  {
+    "id": 42,
+    "client": "CAP TERRITOIRE",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "800 000 € (4 ANS)",
+    "date_limite": "08/06/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 080626 — 60 lots.",
+    "referent": ""
+  },
+  {
+    "id": 43,
+    "client": "DEMOLITION CHAMPSECRET - ORNE HABITAT",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "- (120 JOURS)",
+    "prestations": [
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "date_limite": "18/05/2026",
+    "date_depot": "12/05/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 44,
+    "client": "LOGISSIA",
+    "agence": "Centre-Manche",
+    "statut": "perdu",
+    "montant": "— (8 MOIS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "date_limite": "20/04/2026",
+    "date_depot": "17/04/2026",
+    "referent": "",
+    "rex": "A COMPLETER",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 45,
+    "client": "MAIRIE DE MONT SAINT AIGNAN",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "120 000 € (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "DPE",
+      "Gaz",
+      "Élec"
+    ],
+    "date_limite": "22/05/2026",
+    "date_depot": "20/05/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL240426."
+  },
+  {
+    "id": 51,
+    "client": "COMMUNAUTE D'AGGLOMERATION HENIN CARVIN",
+    "agence": "Haut-de-France",
+    "statut": "à répondre",
+    "montant": "20 000€/an - 2ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "État Parasitaire",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "19/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 190626."
+  },
+  {
+    "id": 52,
+    "client": "MAIRIE DE LENS",
+    "agence": "Haut-de-France",
+    "statut": "non répondu",
+    "montant": "—",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "date_limite": "08/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 08062026."
+  },
+  {
+    "id": 53,
+    "client": "DIRN NORD",
+    "agence": "Haut-de-France",
+    "statut": "en attente",
+    "montant": "7 800€",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb Avant Travaux"
+    ],
+    "date_limite": "29/05/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 54,
+    "client": "PAS DE CALAIS HABITAT",
+    "agence": "Haut-de-France",
+    "statut": "en attente",
+    "montant": "2 000 000€/lot max durée du marché (4lots)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "Contrôle Visuel Avant/Après Travaux",
+      "HAP Enrobés",
+      "Amiante Enrobés"
+    ],
+    "date_limite": "22/05/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL220526."
+  },
+  {
+    "id": 55,
+    "client": "VILLE D'HENIN BEAUMONT",
+    "agence": "Haut-de-France",
+    "statut": "en attente",
+    "montant": "—",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "DPE",
+      "État Parasitaire",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "18/05/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 180526."
+  },
+  {
+    "id": 56,
+    "client": "CONSEIL DEPARTEMENTAL DU NORD",
+    "agence": "Haut-de-France",
+    "statut": "non répondu",
+    "montant": "—",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "date_limite": "15/06/2026",
+    "date_depot": "02/06/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 150626."
+  },
+  {
+    "id": 57,
+    "client": "CROUS LILLE",
+    "agence": "Haut-de-France",
+    "statut": "non répondu",
+    "montant": "—",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "date_limite": "24/04/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL240426."
+  },
+  {
+    "id": 58,
+    "client": "TISSERIN HABITAT",
+    "agence": "Haut-de-France",
+    "statut": "non répondu",
+    "montant": "—",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec"
+    ],
+    "date_limite": "29/05/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL290526."
+  },
+  {
+    "id": 59,
+    "client": "SCDI LA CAENNAISE",
+    "agence": "Centre-Manche",
+    "statut": "à répondre",
+    "montant": "160 000€/an - 4 ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "10/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 100626 — 5 lots."
+  },
+  {
+    "id": 61,
+    "client": "MINISTERE DE L'EUROPE ET DES AFFAIRES ETRANGERES",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "180 000 € HT (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "Plomb Avant Travaux"
+    ],
+    "date_limite": "01/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 64,
+    "client": "ORNE HABITAT – DEMOLITION LA FERTE MACE",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "800 000 € (3 ANS)",
+    "prestations": [
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "date_limite": "09/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 230626."
+  },
+  {
+    "id": 65,
+    "client": "XLHABITAT - AGEN",
+    "agence": "Centre-Manche",
+    "statut": "à répondre",
+    "montant": "150 000 € HT / AN (3 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "12/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 66,
+    "client": "ORNE HABITAT - CHAPELLE MONTLIGEON",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "- (120 JOURS)",
+    "prestations": [
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "16/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 67,
+    "client": "LE HAVRE SEINE MARITIME METROPOLE",
+    "agence": "Centre-Manche",
+    "statut": "à répondre",
+    "montant": "800 000€ — (4 ANS) Lot 4 et 9",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "Plomb Avant Travaux",
+      "État Parasitaire",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "26/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 070526."
+  },
+  {
+    "id": 69,
+    "client": "CONSEIL DEPARTEMENTAL D'EURE ET LOIR",
+    "agence": "Centre-Manche",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "HAP Enrobés"
+    ],
+    "montant": "2 250 000 € (3 ANS)",
+    "date_limite": "16/03/2026",
+    "date_depot": "13/03/2026",
+    "statut": "perdu",
+    "rex": "FMDC DIAGNOSTICS",
+    "causes": [
+      "Prix trop élevé",
+      "Méthodologie insuffisante",
+      "Critère environnemental insuffisant"
+    ],
+    "resume_technique": "NF X 46-102 non certifiée au dépôt. Antenne Chartres non ouverte.",
+    "notes": "DL 160326.",
+    "referent": ""
+  },
+  {
+    "id": 70,
+    "client": "MINISTERE DE L'ECONOMIE (CM)",
+    "agence": "Centre-Manche",
+    "statut": "perdu",
+    "montant": "—",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "date_limite": "30/03/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "AED EXPERTISE",
+    "causes": [
+      "Méthodologie insuffisante",
+      "Organisation/organigramme inadapté"
+    ],
+    "resume_technique": "",
+    "notes": "DL 300326."
+  },
+  {
+    "id": 71,
+    "client": "MENSOLIA",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "— (4 ANS)",
+    "date_limite": "04/06/2026",
+    "date_depot": "",
+    "statut": "à répondre",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "EDF 190326.",
+    "referent": ""
+  },
+  {
+    "id": 73,
+    "client": "ORNE HABITAT - ALENCON DEMOL",
+    "agence": "Centre-Manche",
+    "prestations": [
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "montant": "—",
+    "date_limite": "06/02/2026",
+    "date_depot": "04/02/2026",
+    "statut": "perdu",
+    "rex": "",
+    "causes": [
+      "Motif non communiqué"
+    ],
+    "resume_technique": "",
+    "notes": "DL060226.",
+    "referent": ""
+  },
+  {
+    "id": 74,
+    "client": "CAEN LA MER HABITAT",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "1 600 000 € HT / LOT (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP"
+    ],
+    "date_limite": "01/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 010626. - 2 lots"
+  },
+  {
+    "id": 78,
+    "client": "ALTEAL - AGEN",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "1 783 000 € HT (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante"
+    ],
+    "date_limite": "27/05/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 79,
+    "client": "ORNE HABITAT - VIMOUTIERS REHA",
+    "agence": "Centre-Manche",
+    "statut": "en attente",
+    "montant": "— (120jours)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb Avant Travaux",
+      "Contrôle Visuel Avant/Après Travaux"
+    ],
+    "date_limite": "08/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 80,
+    "client": "ASSEMBLEE NATIONALE",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "265 000 € TTC (4 ANS)",
+    "date_limite": "23/02/2026",
+    "date_depot": "23/02/2026",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 090626.",
+    "referent": ""
+  },
+  {
+    "id": 81,
+    "client": "SNCF",
+    "agence": "Centre-Manche",
+    "statut": "non répondu",
+    "montant": "18 625 911 € (6 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Dossier Technique Amiante"
+    ],
+    "date_limite": "13/04/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 160626."
+  },
+  {
+    "id": 82,
+    "client": "TOUR EIFFEL",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP"
+    ],
+    "montant": "— (4 ANS)",
+    "date_limite": "20/02/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 180526.",
+    "referent": ""
+  },
+  {
+    "id": 83,
+    "client": "HABITAT DROUAIS",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec"
+    ],
+    "montant": "500 000 € (4 ANS)",
+    "date_limite": "23/01/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 200426.",
+    "referent": ""
+  },
+  {
+    "id": 84,
+    "client": "KEDGE BUSINESS SCHOOL",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE"
+    ],
+    "montant": "300 000 € HT (4 ANS)",
+    "date_limite": "22/05/2026",
+    "date_depot": "22/04/2026",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 220526.",
+    "referent": ""
+  },
+  {
+    "id": 85,
+    "client": "SYNDICAT DES EAUX D'ILE DE FRANCE",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Dossier Technique Amiante"
+    ],
+    "montant": "900 000 € HT / LOT (4 ANS)",
+    "date_limite": "24/04/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 220526.",
+    "referent": ""
+  },
+  {
+    "id": 86,
+    "client": "SIAEP DE LA TRIGARDIERE - A+HAP ENROBES",
+    "agence": "Centre-Manche",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "HAP Enrobés"
+    ],
+    "montant": "50 000 € (4 ANS)",
+    "date_limite": "29/05/2026",
+    "date_depot": "06/05/2026",
+    "statut": "en attente",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "DL 290526.",
+    "referent": ""
+  },
+  {
+    "id": 87,
+    "client": "DEPARTEMENT DU GERS",
+    "agence": "Haut-de-France",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "DPE"
+    ],
+    "montant": "200 000 €",
+    "date_limite": "26/05/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "",
+    "referent": ""
+  },
+  {
+    "id": 88,
+    "client": "AGGLOMERATION EVREUX PORTES DE NORMANDIE",
+    "agence": "Centre-Manche",
+    "statut": "non répondu",
+    "montant": "300 000 € / AN (4 ANS)",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec"
+    ],
+    "date_limite": "07/05/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 90,
+    "client": "AMO MORBIHAN",
+    "agence": "Bretagne",
+    "prestations": [
+      "AMO",
+      "Dossier Technique Amiante"
+    ],
+    "montant": "120 000 € HT (4 MOIS)",
+    "date_limite": "04/03/2026",
+    "date_depot": "",
+    "statut": "annulé",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Annulé / sans suite"
+  },
+  {
+    "id": 201,
+    "client": "AGGLOMERATION MONTARGOISE ET RIVES DU LOING",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux"
+    ],
+    "montant": "—",
+    "date_limite": "09/04/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. dossier : dl090426 — DA Bretagne / AO 2026 / 6-NON REPONDU"
+  },
+  {
+    "id": 202,
+    "client": "LA FABRIQUE DE BORDEAUX METROPOLE",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux"
+    ],
+    "montant": "—",
+    "date_limite": "09/01/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-001-26 — dl090126 — DA Bretagne / AO 2026 / 6-NON REPONDU"
+  },
+  {
+    "id": 203,
+    "client": "EAU DU PONANT",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux"
+    ],
+    "montant": "—",
+    "date_limite": "02/02/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-005-26 — dl020225 — DA Bretagne / AO 2026 / 6-NON REPONDU"
+  },
+  {
+    "id": 204,
+    "client": "SEM SONADEV",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux"
+    ],
+    "montant": "—",
+    "date_limite": "10/04/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. BR-015-26 — DL100426 — DA Bretagne / AO 2026 / 6-NON REPONDU"
+  },
+  {
+    "id": 205,
+    "client": "CONSEIL DEPARTEMENTAL D'ILLE ET VILAINE",
+    "agence": "Bretagne",
+    "prestations": [
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "montant": "—",
+    "date_limite": "27/02/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. DL270226 — PEMD — DA Bretagne / AO 2026 / 6-NON REPONDU"
+  },
+  {
+    "id": 207,
+    "client": "LOGEMLOIRET",
+    "agence": "Bretagne",
+    "prestations": [
+      "Amiante Avant Travaux"
+    ],
+    "montant": "—",
+    "date_limite": "21/05/2026",
+    "date_depot": "",
+    "statut": "non répondu",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "Réf. DL210526 — DA Bretagne / AO 2026 / 6-NON REPONDU"
+  },
+  {
+    "id": 208,
+    "client": "LEFF AMOR COMMUNAUTE",
+    "agence": "Bretagne",
+    "statut": "en attente",
+    "montant": "20 000€/an - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb Avant Travaux",
+      "HAP Enrobés",
+      "Amiante Enrobés"
+    ],
+    "date_limite": "30/04/2026",
+    "date_depot": "28/04/2026",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 209,
+    "client": "HABITAT 44",
+    "agence": "Pays de la Loire",
+    "statut": "perdu",
+    "montant": "200 000€/an - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "Plomb Avant Travaux",
+      "DPE",
+      "Gaz",
+      "Élec",
+      "État Parasitaire",
+      "Contrôle Visuel Avant/Après Travaux",
+      "HAP Enrobés",
+      "Amiante Enrobés",
+      "Radon",
+      "Autre (PEMD / Empoussiérement)"
+    ],
+    "date_limite": "25/02/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "AC ENVIRONNEMENT",
+    "causes": [
+      "Prix trop élevé",
+      "Offre technique insuffisante",
+      "Délais trop longs",
+      "Critère environnemental insuffisant",
+      "Réactivité / disponibilité insuffisante"
+    ],
+    "resume_technique": "Délais de rendu moins compétitifs (10 jours contre 7-8 jours chez certains concurrents) et engagement RSE présenté sans indicateurs chiffrés, ce qui a probablement pénalisé l’évaluation.",
+    "notes": "Réaliser un benchmark tarifaire avant chaque offre, intégrer un tableau des délais par prestation, quantifier les engagements RSE avec des KPI précis et solliciter un débriefing auprès d’Habitat 44 pour analyser les notes détaillées."
+  },
+  {
+    "id": 210,
+    "client": "MELDOMYS",
+    "agence": "Pays de la Loire",
+    "statut": "perdu",
+    "montant": "30 000€/an - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Plomb - CREP",
+      "DPE",
+      "Gaz",
+      "Élec"
+    ],
+    "date_limite": "02/03/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "ADX GROUPE",
+    "causes": [
+      "Prix trop élevé",
+      "Offre technique insuffisante"
+    ],
+    "resume_technique": "",
+    "notes": "Montant ADX : 31 050.00€\nChevalier Diag : 46 156.25€ (classé 5/5)"
+  },
+  {
+    "id": 211,
+    "client": "MAIRIE DE REZE",
+    "agence": "Bretagne",
+    "statut": "perdu",
+    "montant": "CC",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition"
+    ],
+    "date_limite": "",
+    "date_depot": "",
+    "referent": "",
+    "rex": "ADX GROUPE",
+    "causes": [
+      "Prix trop élevé",
+      "Offre technique insuffisante",
+      "Méthodologie insuffisante",
+      "Organisation/organigramme inadapté"
+    ],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 212,
+    "client": "GHT D'AMOR",
+    "agence": "Bretagne",
+    "statut": "perdu",
+    "montant": "40 000€/an - 4ans",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP",
+      "Radon"
+    ],
+    "date_limite": "",
+    "date_depot": "",
+    "referent": "ADX GROUPE",
+    "rex": "ADX GROUPE",
+    "causes": [
+      "Prix trop élevé",
+      "Méthodologie insuffisante"
+    ],
+    "resume_technique": "Méthodologie des opérations en liens avec le marché",
+    "notes": ""
+  },
+  {
+    "id": 213,
+    "client": "CAMPUS DE L'ESPACE",
+    "agence": "Centre-Manche",
+    "statut": "à répondre",
+    "montant": "- 120jours",
+    "prestations": [
+      "Amiante Avant Travaux",
+      "Amiante Avant Démolition",
+      "Dossier Technique Amiante",
+      "Plomb - CREP"
+    ],
+    "date_limite": "22/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 214,
+    "client": "OISE HABITAT",
+    "agence": "Cherbourg",
+    "statut": "à répondre",
+    "montant": "150 000€ / 1an",
+    "prestations": [
+      "DPE"
+    ],
+    "date_limite": "23/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": "7 000- logements"
+  },
+  {
+    "id": 215,
+    "client": "LILLE METROPOLE",
+    "agence": "Haut-de-France",
+    "statut": "perdu",
+    "montant": "—",
+    "prestations": [],
+    "date_limite": "",
+    "date_depot": "",
+    "referent": "",
+    "rex": "A COMPLETER",
+    "causes": [
+      "Dossier incomplet"
+    ],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 216,
+    "client": "CHU de CAEN",
+    "agence": "Centre-Manche",
+    "statut": "à répondre",
+    "montant": "10 000 €",
+    "prestations": [
+      "Dossier Technique Amiante",
+      "AMO"
+    ],
+    "date_limite": "24/07/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 217,
+    "client": "COM COM LISERES DE L'OISE",
+    "agence": "Centre-Manche",
+    "statut": "à répondre",
+    "montant": "Assaisnissment",
+    "prestations": [
+      "AMO"
+    ],
+    "date_limite": "29/06/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  },
+  {
+    "id": 218,
+    "client": "CA DINAN - Diag assainissement",
+    "agence": "Bretagne",
+    "statut": "à répondre",
+    "montant": "—",
+    "prestations": [
+      "AMO"
+    ],
+    "date_limite": "15/07/2026",
+    "date_depot": "",
+    "referent": "",
+    "rex": "",
+    "causes": [],
+    "resume_technique": "",
+    "notes": ""
+  }
+];
+
+let data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let editId=null, sortCol='date_limite', sortDir=1, currentFilter='all', deleteId=null;
+let SCRIPT_URL = localStorage.getItem('chevalier_script_url') || '';
+
+// ── AFFICHAGE ────────────────────────────────────────────────────────────────
+function pillsFor(arr){
+  if(!arr||!arr.length) return '<span style="color:var(--muted);font-size:10px">—</span>';
+  return '<div class="prestation-list">'+arr.map(p=>`<span class="pill ${PILL_MAP[p]||'pill-autre'}">${p}</span>`).join('')+ '</div>';
+}
+function causesFor(arr){
+  if(!arr||!arr.length) return '<span class="cause-empty">—</span>';
+  return '<div class="causes-list">'+arr.map(c=>`<span class="cause-tag">${c}</span>`).join('')+ '</div>';
+}
+function badgeFor(s){
+  const m={'gagné':'badge-won','perdu':'badge-lost','à répondre':'badge-todo','en attente':'badge-pending','non répondu':'badge-nrep','annulé':'badge-annule'};
+  const l={'gagné':'✓ Gagné','perdu':'✗ Perdu','à répondre':'⚡ À répondre','en attente':'⏳ En attente','non répondu':'— Non répondu','annulé':'∅ Annulé'};
+  return `<span class="status-badge ${m[s]||'badge-nrep'}"><span class="dot"></span>${l[s]||s}</span>`;
+}
+function dateSort(d){if(!d)return'9999';const p=d.split('/');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:d;}
+
+function render(){
+  const q=(document.getElementById('search').value||''). toLowerCase();
+  let rows=data.filter(r=>{
+    const sf=currentFilter==='all'||r.statut===currentFilter;
+    const sq=!q||[r.client,r.agence,r.montant,r.rex,r.notes,r.resume_technique,r.referent,(r.prestations||[]).join(' '),(r.causes||[]).join(' ')].join(' ').toLowerCase().includes(q);
+    return sf&&sq;
+  });
+  rows.sort((a,b)=>{
+    let va=a[sortCol]||'',vb=b[sortCol]||'';
+    if(sortCol==='date_limite'||sortCol==='date_depot'){va=dateSort(va);vb=dateSort(vb);}
+    return typeof va==='string'?sortDir*va.localeCompare(vb,'fr'):sortDir*(va-vb);
+  });
+  const tbody=document.getElementById('tbody');
+  document.getElementById('no-results').style.display=rows.length?'none':'';
+  tbody.innerHTML=rows.map(r=>`<tr>
+    <td ondblclick="makeEditable(this,${r.id},'client')" title="Double-clic pour modifier" style="max-width:170px;line-height:1.4;font-size:12px;cursor:text">${r.client}</td>
+    <td><span class="tag-agence">${r.agence}</span></td>
+    <td>${pillsFor(r.prestations)}</td>
+    <td ondblclick="makeEditable(this,${r.id},'montant')" title="Double-clic pour modifier" class="montant" style="cursor:text">${r.montant||'—'}</td>
+    <td ondblclick="makeEditable(this,${r.id},'date_limite')" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:text">${r.date_limite||'—'}</td>
+    <td ondblclick="makeEditable(this,${r.id},'date_depot')" title="Double-clic pour modifier" style="white-space:nowrap;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:text">${r.date_depot||'—'}</td>
+    <td>${badgeFor(r.statut)}</td>
+    <td ondblclick="makeEditable(this,${r.id},'rex')" title="Double-clic pour modifier" style="cursor:text">${r.rex?`<span class="concurrent-cell">${r.rex}</span>`:`<span class="cause-empty">—</span>`}</td>
+    <td>${causesFor(r.causes)}</td>
+    <td ondblclick="makeEditable(this,${r.id},'resume_technique')" title="Double-clic pour modifier" style="max-width:180px;font-size:11px;color:${r.resume_technique?'#c8a060':'var(--muted)'};line-height:1.4;cursor:text">${r.resume_technique||'—'}</td>
+    <td ondblclick="makeEditable(this,${r.id},'referent')" title="Double-clic pour modifier" style="white-space:nowrap;font-size:11px;color:var(--accent2);cursor:text">${r.referent||'<span style="color:var(--muted)">—</span>'}</td>
+    <td style="white-space:nowrap">
+      <button class="action-btn" onclick="editEntry(${r.id})">✎ Éditer</button>
+      <button class="action-btn del" onclick="askDelete(${r.id},'${r.client.replace(/'/g,"\\'")}')">🗑</button>
+    </td>
+  </tr>`).join('');
+  updateKPIs(); updateStats();
+}
+
+function updateKPIs(){
+  const won=data.filter(r=>r.statut==='gagné').length;
+  const lost=data.filter(r=>r.statut==='perdu').length;
+  const todo=data.filter(r=>r.statut==='à répondre').length;
+  const wait=data.filter(r=>r.statut==='en attente').length;
+  const nrep=data.filter(r=>r.statut==='non répondu').length;
+  const tx=won+lost?Math.round(won/(won+lost)*100):0;
+  document.getElementById('kpi-strip').innerHTML=`
+    <div class="kpi"><div class="kpi-label">Total AO</div><div class="kpi-value white">${data.length}</div></div>
+    <div class="kpi"><div class="kpi-label">Gagnés</div><div class="kpi-value green">${won}</div></div>
+    <div class="kpi"><div class="kpi-label">Perdus</div><div class="kpi-value red">${lost}</div></div>
+    <div class="kpi"><div class="kpi-label">À répondre</div><div class="kpi-value yellow">${todo}</div></div>
+    <div class="kpi"><div class="kpi-label">En attente</div><div class="kpi-value blue">${wait}</div></div>
+    <div class="kpi"><div class="kpi-label">Non répondus</div><div class="kpi-value white">${nrep}</div></div>
+    <div class="kpi"><div class="kpi-label">Taux succès</div><div class="kpi-value ${tx>=50?'green':'red'}">${tx}%</div></div>`;
+}
+function statRows(counts,total,cls,empty){
+  if(!Object.keys(counts).length) return `<div class="stat-empty">${empty}</div>`;
+  const max=Math.max(...Object.values(counts),1);
+  return Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([l,c])=>`
+    <div class="stat-row">
+      <div class="stat-label">${l}</div>
+      <div class="stat-count" style="color:${cls==='red'?'var(--lost-text)':'#d4935a'}">${c}</div>
+      <div class="stat-pct">${Math.round(c/total*100)}%</div>
+      <div class="stat-bar-wrap"><div class="stat-bar ${cls}" style="width:${Math.round(c/max*100)}%"></div></div>
+    </div>`).join('');
+}
+function updateStats(){
+  const lost=data.filter(r=>r.statut==='perdu'); const total=lost.length||1;
+  const cc={}; lost.forEach(r=>(r.causes||[]).forEach(c=>{cc[c]=(cc[c]||0)+1;}));
+  document.getElementById('stats-causes').innerHTML=statRows(cc,total,'red','Aucune cause renseignée');
+  const co={}; lost.forEach(r=>{if(r.rex&&r.rex.trim()) co[r.rex.trim()]=(co[r.rex.trim()]||0)+1;});
+  document.getElementById('stats-concurrents').innerHTML=statRows(co,total,'orange','Aucun concurrent renseigné');
+}
+
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
+function sortBy(col){if(sortCol===col)sortDir=-sortDir;else{sortCol=col;sortDir=1;}render();}
+
+// ── MODAL ────────────────────────────────────────────────────────────────────
+function togglePerdu(){
+  const show=document.getElementById('f-statut').value==='perdu';
+  ['g-concurrent','g-causes','g-resume'].forEach(id=>document.getElementById(id).style.display=show?'':' none');
+  if(!show) document.querySelectorAll('.hcheck').forEach(cb=>cb.checked=false);
+}
+function openModal(entry=null){
+  editId=entry?entry.id:null;
+  document.getElementById('modal-title').textContent=entry?"Modifier l'AO":"Nouvel Appel d'Offres";
+  document.getElementById('f-client').value=entry?.client||'';
+  document.getElementById('f-agence').value=entry?.agence||'';
+  document.getElementById('f-statut').value=entry?.statut||'à répondre';
+  document.getElementById('f-montant').value=entry?.montant||'';
+  document.querySelectorAll('.pcheck').forEach(cb=>cb.checked=(entry?.prestations||[]).includes(cb.value));
+  const toISO=d=>{if(!d)return'';const p=d.split('/');return p.length===3?`${p[2]}-${p[1]}-${p[0]}`:d;};
+  document.getElementById('f-date-limite').value=toISO(entry?.date_limite);
+  document.getElementById('f-date-depot').value=toISO(entry?.date_depot);
+  document.getElementById('f-referent').value=entry?.referent||'';
+  document.getElementById('f-rex').value=entry?.rex||'';
+  document.querySelectorAll('.hcheck').forEach(cb=>cb.checked=(entry?.causes||[]).includes(cb.value));
+  document.getElementById('f-resume').value=entry?.resume_technique||'';
+  document.getElementById('f-notes').value=entry?.notes||'';
+  document.getElementById('btn-delete-modal').style.display=editId?'':' none';
+  togglePerdu();
+  document.getElementById('modal-bg').classList.add('open');
+}
+function closeModal(){document.getElementById('modal-bg').classList.remove('open');}
+function saveEntry(){
+  const toFR=d=>{if(!d)return'';const p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d;};
+  const isPerdu=document.getElementById('f-statut').value==='perdu';
+  const e={
+    id:editId||(Math.max(0,...data.map(d=>d.id))+1),
+    client:document.getElementById('f-client').value||'Client',
+    agence:document.getElementById('f-agence').value||'Cherbourg',
+    statut:document.getElementById('f-statut').value,
+    montant:document.getElementById('f-montant').value||'—',
+    prestations:[...document.querySelectorAll('.pcheck:checked')].map(cb=>cb.value),
+    date_limite:toFR(document.getElementById('f-date-limite').value),
+    date_depot:toFR(document.getElementById('f-date-depot').value),
+    referent:document.getElementById('f-referent').value,
+    rex:isPerdu?document.getElementById('f-rex').value:'',
+    causes:isPerdu?[...document.querySelectorAll('.hcheck:checked')].map(cb=>cb.value):[],
+    resume_technique:isPerdu?document.getElementById('f-resume').value:'',
+    notes:document.getElementById('f-notes').value,
+  };
+  if(editId){const i=data.findIndex(d=>d.id===editId);data[i]=e;}else data.push(e);
+  closeModal(); saveLocal(); syncRow(e); render();
+}
+function editEntry(id){openModal(data.find(d=>d.id===id));}
+
+// ── SUPPRESSION ──────────────────────────────────────────────────────────────
+function askDelete(id,client){
+  deleteId=id;
+  document.getElementById('confirm-text').textContent=`Supprimer « ${client} » ? Cette action est irréversible.`;
+  document.getElementById('confirm-bg').classList.add('open');
+}
+function confirmDelete(){if(editId) askDelete(editId, data.find(d=>d.id===editId)?.client||'cet AO');}
+function doDelete(){
+  if(deleteId){
+    deleteRemote(deleteId);
+    data=data.filter(d=>d.id!==deleteId);
+    deleteId=null;
+  }
+  document.getElementById('confirm-bg').classList.remove('open');
+  document.getElementById('modal-bg').classList.remove('open');
+  saveLocal(); render();
+}
+
+// ── STOCKAGE LOCAL ────────────────────────────────────────────────────────────
+function saveLocal(){
+  try{ localStorage.setItem('chevalier_diag_ao_v3', JSON.stringify(data)); setSaveLabel(true); }
+  catch(e){ setSaveLabel(false); }
+}
+function setSaveLabel(ok){
+  const dot=document.getElementById('save-dot'), lbl=document.getElementById('save-label');
+  dot.classList.add('saving');
+  setTimeout(()=>{
+    dot.classList.remove('saving');
+    lbl.textContent=ok?'Sauvegardé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):' ⚠ Erreur sauvegarde';
+  },300);
+}
+function loadLocal(){
+  try{
+    const r=localStorage.getItem('chevalier_diag_ao_v3');
+    if(r){const p=JSON.parse(r);if(Array.isArray(p)&&p.length){data=p;return true;}}
+  }catch(e){}
+  return false;
+}
+function exportData(){
+  const b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(b);
+  a.download='chevalier_diag_ao_'+new Date().toISOString().slice(0,10)+'.json'; a.click();
+}
+function importFusion(e){
+  const f=e.target.files[0]; if(!f) return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const parsed=JSON.parse(ev.target.result);
+      if(!Array.isArray(parsed)) throw new Error('Format invalide');
+      let added=0,updated=0;
+      parsed.forEach(incoming=>{
+        const idx=data.findIndex(d=>d.id===incoming.id);
+        if(idx>=0){
+          const ex=data[idx];
+          if(!ex.montant||ex.montant==='—') ex.montant=incoming.montant||ex.montant;
+          if(!ex.prestations||!ex.prestations.length) ex.prestations=incoming.prestations||[];
+          if(!ex.referent) ex.referent=incoming.referent||'';
+          if(!ex.notes) ex.notes=incoming.notes||'';
+          updated++;
+        } else {
+          if(data.find(d=>d.id===incoming.id)) incoming.id=Math.max(0,...data.map(d=>d.id))+1;
+          data.push({...incoming,referent:incoming.referent||''});
+          added++;
+        }
+      });
+      saveLocal(); render();
+      alert(`✅ Fusion terminée\n• ${added} nouveaux AO\n• ${updated} AO complétés`);
+    }catch(err){ alert('❌ Fichier invalide : '+err.message); }
+    e.target.value='';
+  };
+  reader.readAsText(f);
+}
+function resetData(){
+  if(!confirm('⚠️ Réinitialiser aux données d\'origine ?')) return;
+  data=JSON.parse(JSON.stringify(DEFAULT_DATA)); saveLocal(); render();
+}
+
+// ── GOOGLE SHEETS SYNC ────────────────────────────────────────────────────────
+function saveConfig(){
+  SCRIPT_URL = document.getElementById('sync-url').value.trim();
+  localStorage.setItem('chevalier_script_url', SCRIPT_URL);
+  updateSyncStatus();
+}
+function updateSyncStatus(){
+  const el=document.getElementById('sync-status');
+  if(SCRIPT_URL){ el.textContent='⬤ Google Sheets'; el.style.color='var(--accent2)'; }
+  else { el.textContent='⬤ Local'; el.style.color='var(--muted)'; }
+}
+async function callScript(payload){
+  if(!SCRIPT_URL) return null;
+  try{
+    const resp = await fetch(SCRIPT_URL, {
+      method:'POST',
+      body: JSON.stringify(payload),
+    });
+    const text = await resp.text();
+    return JSON.parse(text);
+  }catch(e){ console.warn('Script error:', e); return null; }
+}
+async function syncNow(){
+  if(!SCRIPT_URL){ alert('Configurez d\'abord l\'URL Apps Script (bouton ⚙ Guide)'); return; }
+  document.getElementById('last-sync').textContent='Synchronisation…';
+  const result = await callScript({action:'getAll'});
+  if(!result){ document.getElementById('last-sync').textContent='❌ Erreur connexion'; return; }
+  if(result.error){ document.getElementById('last-sync').textContent='❌ '+result.error; return; }
+  if(result.rows && result.rows.length){
+    // Fusion intelligente : les données distantes ont la priorité
+    const remoteMap = {};
+    result.rows.forEach(r=>remoteMap[r.id]=r);
+    // Ajouter les locaux absents du remote
+    data.forEach(local=>{ if(!remoteMap[local.id]) remoteMap[local.id]=local; });
+    data = Object.values(remoteMap);
+    saveLocal(); render();
+  }
+  document.getElementById('last-sync').textContent='✓ Sync '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+async function pushAll(){
+  if(!SCRIPT_URL){ alert('Configurez d\'abord l\'URL Apps Script'); return; }
+  if(!confirm(`Envoyer les ${data.length} AO vers Google Sheets ? Cela remplacera les données existantes.`)) return;
+  document.getElementById('last-sync').textContent='Envoi…';
+  const result = await callScript({action:'bulkInsert', rows:data});
+  if(result?.ok){ document.getElementById('last-sync').textContent=`✓ ${result.count} AO envoyés`; }
+  else { document.getElementById('last-sync').textContent='❌ Erreur envoi'; }
+}
+async function syncRow(entry){
+  if(!SCRIPT_URL) return;
+  await callScript({action:'save', data:entry});
+}
+async function deleteRemote(id){
+  if(!SCRIPT_URL) return;
+  await callScript({action:'delete', id});
+}
+function openConfig(){
+  document.getElementById('config-url-input').value=SCRIPT_URL;
+  document.getElementById('config-bg').classList.add('open');
+}
+function applyConfig(){
+  const url=document.getElementById('config-url-input').value.trim();
+  SCRIPT_URL=url;
+  document.getElementById('sync-url').value=url;
+  localStorage.setItem('chevalier_script_url',url);
+  document.getElementById('config-bg').classList.remove('open');
+  updateSyncStatus();
+  if(url) syncNow();
+}
+
+// ── EDITION INLINE ────────────────────────────────────────────────────────────
+function makeEditable(cell,id,field){
+  const entry=data.find(d=>d.id===id); if(!entry) return;
+  const original=entry[field]||'';
+  cell.setAttribute('contenteditable','true');
+  cell.style.outline='1px solid var(--accent)'; cell.style.borderRadius='4px';
+  cell.focus();
+  const range=document.createRange(),sel=window.getSelection();
+  range.selectNodeContents(cell); range.collapse(false);
+  sel.removeAllRanges(); sel.addRange(range);
+  const save=()=>{
+    cell.removeAttribute('contenteditable'); cell.style.outline='';
+    const val=cell.innerText.trim();
+    if(val!==original){
+      entry[field]=val; saveLocal(); syncRow(entry);
+      cell.style.background='rgba(79,195,161,.15)';
+      setTimeout(()=>{ cell.style.background=''; },800);
+    }
+  };
+  cell.addEventListener('blur',save,{once:true});
+  cell.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();cell.blur();}
+    if(e.key==='Escape'){cell.innerText=original;cell.blur();}
+  },{once:true});
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+document.getElementById('sync-url').value = SCRIPT_URL;
+updateSyncStatus();
+const restored = loadLocal();
+document.getElementById('save-label').textContent = restored ? 'Restauré depuis la session précédente' : 'Données initiales chargées';
+render();
+// Auto-sync au démarrage si URL configurée
+if(SCRIPT_URL) setTimeout(syncNow, 1000);
+</script>
+
+</body></html>
